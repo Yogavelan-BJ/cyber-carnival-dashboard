@@ -138,11 +138,6 @@ function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="h-14 border-b-2 border-black w-full flex items-center justify-center">
-        <h1 className="text-black text-2xl font-mono m-2">
-          Cyber Carnival '25 Dashboard
-        </h1>
-      </div>
       <h1 className="text-2xl font-mono my-10">Overall Statistics</h1>
       <div className="flex items-center justify-center flex-wrap w-full px-24">
         <div className="flex flex-col items-center justify-center">
