@@ -7,121 +7,17 @@ import { PieChart } from "@mui/x-charts";
 import { useAppContext } from "./context";
 import { useNavigate } from "react-router-dom";
 function Home() {
-  const { data, setData, eventFees } = useAppContext();
-  const [dataset, setDataset] = useState([]);
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [totalRegistrations, setTotalRegistrations] = useState(0);
+  const {
+    data,
+    dataset,
+    totalRegistrations,
+    totalRevenue,
+    verifiedData,
+    verifiedDataset,
+    verifiedTotalRegistrations,
+    verifiedTotalRevenue,
+  } = useAppContext();
   const nav = useNavigate();
-
-  async function getEvents() {
-    const collections = [
-      "cyberconclave",
-      "capturetheflag",
-      "cyberthon",
-      "paperpresentation",
-      "bugbounty",
-      "techexpo",
-      "startup",
-      "freefire",
-      "cinema",
-      "surfing",
-      "awareness",
-      "workshop1",
-      "workshop2",
-      "title",
-      "valo",
-    ];
-
-    const allData = [];
-    const Tecnical = [];
-    const NonTechnical = [];
-    const Cyberthon = [];
-    const Workshops = [];
-    const Conclave = [];
-    const Awareness = [];
-
-    const newDataset = [
-      { registrations: 0, revenue: 0, event: "Technical" },
-      { registrations: 0, revenue: 0, event: "Non-Technical" },
-      { registrations: 0, revenue: 0, event: "Cyberthon" },
-      { registrations: 0, revenue: 0, event: "Workshops" },
-      { registrations: 0, revenue: 0, event: "Conclave" },
-      { registrations: 0, revenue: 0, event: "Awareness" },
-    ];
-
-    for (const col of collections) {
-      const colRef = collection(db, col);
-      const colSnapshot = await getDocs(colRef);
-      const colData = colSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      if (col === "cyberthon") {
-        newDataset[2].registrations += colSnapshot.docs.length;
-        newDataset[2].revenue += colSnapshot.docs.length * eventFees[col];
-        Cyberthon.push({ collection: col, documents: colData });
-      } else if (col === "workshop1" || col === "workshop2") {
-        newDataset[3].registrations += colSnapshot.docs.length;
-        newDataset[3].revenue += colSnapshot.docs.length * eventFees[col];
-        Workshops.push({ collection: col, documents: colData });
-      } else if (col === "awareness") {
-        newDataset[5].registrations += colSnapshot.docs.length;
-        newDataset[5].revenue += colSnapshot.docs.length * eventFees[col];
-        Awareness.push({ collection: col, documents: colData });
-      } else if (col === "cyberconclave") {
-        newDataset[4].registrations += colSnapshot.docs.length;
-        newDataset[4].revenue += colSnapshot.docs.length * eventFees[col];
-        Conclave.push({ collection: col, documents: colData });
-      } else if (
-        col === "title" ||
-        col === "valo" ||
-        col === "freefire" ||
-        col === "cinema" ||
-        col === "surfing" ||
-        col === "shipwreck"
-      ) {
-        newDataset[1].registrations += colSnapshot.docs.length;
-        newDataset[1].revenue += colSnapshot.docs.length * eventFees[col];
-        NonTechnical.push({ collection: col, documents: colData });
-      } else if (
-        col === "startup" ||
-        col === "techexpo" ||
-        col === "paperpresentation" ||
-        col === "bugbounty" ||
-        col === "capturetheflag"
-      ) {
-        newDataset[0].registrations += colSnapshot.docs.length;
-        newDataset[0].revenue += colSnapshot.docs.length * eventFees[col];
-        Tecnical.push({ collection: col, documents: colData });
-      }
-      allData.push({ collection: col, documents: colData });
-    }
-    let TotalRevenue = 0;
-    let TotalRegistrations = 0;
-    for (let j of newDataset) {
-      TotalRevenue += j.revenue;
-      TotalRegistrations += j.registrations;
-    }
-
-    setDataset(newDataset);
-    setData({
-      allData,
-      Tecnical,
-      NonTechnical,
-      Cyberthon,
-      Workshops,
-      Conclave,
-      Awareness,
-    });
-    setTotalRevenue(TotalRevenue);
-    setTotalRegistrations(TotalRegistrations);
-  }
-
-  useEffect(() => {
-    getEvents();
-  }, []);
-
   const chartSetting = {
     xAxis: [
       {
@@ -135,7 +31,6 @@ function Home() {
   function valueFormatter(value) {
     return `${value}`;
   }
-
   return (
     <div className="flex flex-col items-center justify-center">
       <h1 className="text-2xl font-mono my-10">Overall Statistics</h1>
@@ -175,6 +70,75 @@ function Home() {
                   { id: 3, value: dataset[3]?.revenue, label: "Workshops" },
                   { id: 4, value: dataset[4]?.revenue, label: "Conclave" },
                   { id: 5, value: dataset[5]?.revenue, label: "Awareness" },
+                ],
+              },
+            ]}
+            width={500}
+            height={200}
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-center flex-wrap w-full px-24 my-8">
+        <div className="flex flex-col items-center justify-center">
+          <h2 className="my-4 text-xl font-mono">
+            Verified Registrations : {verifiedTotalRegistrations}
+          </h2>
+          <BarChart
+            dataset={verifiedDataset}
+            yAxis={[{ scaleType: "band", dataKey: "event" }]}
+            sx={{}}
+            margin={{ left: 100 }}
+            series={[
+              {
+                dataKey: "registrations",
+                label: "Registrations",
+                valueFormatter,
+              },
+            ]}
+            layout="horizontal"
+            grid={{ vertical: true }}
+            {...chartSetting}
+          />
+        </div>
+        <div className="flex flex-col items-center justify-center">
+          <h2 className="my-4 text-xl font-mono">
+            Verified Revenue : Rs.{verifiedTotalRevenue}
+          </h2>
+          <PieChart
+            series={[
+              {
+                data: [
+                  {
+                    id: 0,
+                    value: verifiedDataset[0]?.revenue,
+                    label: "Technical",
+                  },
+                  {
+                    id: 1,
+                    value: verifiedDataset[1]?.revenue,
+                    label: "Non-Technical",
+                  },
+                  {
+                    id: 2,
+                    value: verifiedDataset[2]?.revenue,
+                    label: "Cyberthon",
+                  },
+                  {
+                    id: 3,
+                    value: verifiedDataset[3]?.revenue,
+                    label: "Workshops",
+                  },
+                  {
+                    id: 4,
+                    value: verifiedDataset[4]?.revenue,
+                    label: "Conclave",
+                  },
+                  {
+                    id: 5,
+                    value: verifiedDataset[5]?.revenue,
+                    label: "Awareness",
+                  },
                 ],
               },
             ]}
