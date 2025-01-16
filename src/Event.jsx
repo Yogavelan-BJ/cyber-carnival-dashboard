@@ -104,6 +104,13 @@ function Event() {
                     <h1 className="text-xl font-mono ">
                       Registration ID: {row.id}
                     </h1>
+
+                    {row.teamName && (
+                      <h1 className="text-xl font-mono ">
+                        Team Name: {row.teamName}
+                      </h1>
+                    )}
+
                     <h1 className="text-xl font-mono ">Name: {row.name}</h1>
                     {row.member2 && (
                       <h1 className="text-xl font-mono ">
